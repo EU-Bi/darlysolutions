@@ -1,9 +1,10 @@
-import React,{ useEffect, useState, FC} from 'react'
+import React,{ useEffect, useState, FC, useContext} from 'react'
 import TableBody from '@mui/material/TableBody';
 import TableCell from '@mui/material/TableCell';
 import TableRow from '@mui/material/TableRow';
 import { Column } from './TableBodyCard';
 import axios from 'axios';
+import { Context } from '../App';
 
 interface Photo {
   id:number;
@@ -14,6 +15,7 @@ interface Photo {
 
 interface IRowCard{
   columns:Column[]
+  userPhoto?:Photo
 }
 
 const TableRowCard: FC <IRowCard> = ({columns}) => {
@@ -21,20 +23,30 @@ const TableRowCard: FC <IRowCard> = ({columns}) => {
   const [currentPage,setCurrentPage]=useState(1)
   const [fetching, setFetching]=useState(true)
 
-
-  useEffect(()=>{
+  const context= useContext(Context)
+  /*Не знаю как типизировать хук useContext
+  Хотел с помощью этого хука передавать обьект в масив photos
+  и потом изменять id элемента на 1 больше при добавлении нового элемента в масив
+  */
+  // if(context.hasOwnProperty('obj')){
+  //   console.log(context.obj)
+  // }
+  
+  useEffect(()=>{ 
     if(fetching){
       axios.get<Photo[]>(`https://jsonplaceholder.typicode.com/photos?_limit=20&_page=${currentPage}`)
       .then(response=>{
         setPhotos([...photos,...response.data])
-        setCurrentPage(prevState=>prevState+1)
-
+        setCurrentPage(prevState=>prevState+1) 
+        let total=response.headers['x-total-count']
+        console.log(total)
       })
       .finally(()=>setFetching(false))
 
     }
     
   },[fetching])
+  
   useEffect(()=>{
     document.addEventListener('scroll',handleScroll)
     return function(){

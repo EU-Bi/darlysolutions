@@ -1,4 +1,4 @@
-import React,{useState,useEffect} from 'react';
+import React,{useState,useEffect,useContext} from 'react';
 import Button from '@mui/material/Button';
 import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
@@ -7,6 +7,7 @@ import TextField from '@mui/material/TextField';
 import DialogTitle from '@mui/material/DialogTitle';
 import Slide from '@mui/material/Slide';
 import { TransitionProps } from '@mui/material/transitions';
+import { Context } from '../App';
 
 const Transition = React.forwardRef(function Transition(
   props: TransitionProps & {
@@ -22,7 +23,10 @@ export default function Form() {
   const [isDisabled,setDisabled]=useState(true)
   const [title,setTitle]=useState('')
   const [url,setUrl] = useState('')
+  
 
+  const userPhoto = useContext(Context)
+  
   const handleClickOpen = () => {
     setOpen(true);
   };
@@ -31,19 +35,34 @@ export default function Form() {
     setOpen(false);
   };
 
-  const handleTipingTitle=(e:any)=>{
-    setTitle(e.target.value)
-    disabledButton(title,url)
+  const handleTiping=(e:any)=>{
+    if(e.target.id=='title'){
+        setTitle(e.target.value)
+    }
+    if(e.target.id=='url'){
+      setUrl(e.target.value)
+    }
+    
+    
   }
 
-  const handleTipingUrl =(e:any)=>{
-    setUrl(e.target.value)
-    disabledButton(title,url)
+  const photoObj=(title:string,url:string)=>{
+    return {
+      id:1,
+      title:title,
+      url:url,
+      thumbnailUrl:url
+    }
+
   }
 
-  const disabledButton= (title:string, url:string)=>{
-    title!==''&&url!==''?setDisabled(false):setDisabled(true)
-  }
+  useEffect(()=>{
+    if(title==''||url==''){
+      setDisabled(true)
+    }else{
+      setDisabled(false)
+    }
+  })
   
   return (
     <div>
@@ -65,9 +84,10 @@ export default function Form() {
             id="title"
             label="Titile"
             type="text"
+            value={title}
             fullWidth
             onChange={(e)=>{
-              handleTipingTitle(e)
+              handleTiping(e)
             }}
             variant="standard"
           />
@@ -76,9 +96,10 @@ export default function Form() {
             id="url"
             label="UrlPhoto"
             type="text"
+            value={url}
             fullWidth
             onChange={(e)=>{
-              handleTipingUrl(e)
+              handleTiping(e)
             }}
             variant="standard"
           />
@@ -88,10 +109,11 @@ export default function Form() {
           <Button 
           disabled={isDisabled} 
           onClick={()=>{
-            handleClose()
-            console.log(title, url)
             
-
+            // userPhoto.setUsersPhoto(photoObj(title,url))
+            setTitle('')
+            setUrl('')
+            handleClose()
           }}>ADD</Button>
         </DialogActions>
       </Dialog>
